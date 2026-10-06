@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Facture Brodaka Studio</title>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+</head>
+<body>
+<div class="page">
+    <header class="hero">
+        <img th:src="@{/images/logo-brodaka.jpg}" alt="Brodaka Studio"/>
+        <div>
+            <h1>BRODAKA STUDIO</h1>
+            <p>Génération de facture broderie</p>
+        </div>
+    </header>
+
+    <form id="invoice-form" class="card" th:action="@{/facture/pdf}" th:object="${invoiceForm}" method="post">
+        <p class="error global-error" th:if="${#fields.hasErrors('*')}">
+            Vérifiez le nom du client et les lignes : description, nombre de points, quantité et prix conception sont obligatoires.
+        </p>
+
+        <div class="client">
+            <label for="clientName">Nom client</label>
+            <input id="clientName" type="text" th:field="*{clientName}" required="required"/>
+            <p class="error" th:if="${#fields.hasErrors('clientName')}">Le nom du client est obligatoire.</p>
+        </div>
+
+        <div id="lines-body">
+            <div class="invoice-line" th:each="line, iter : *{lines}">
+                <div class="line-head">
+                    <div class="grow">
+                        <label>Description</label>
+                        <input type="text" th:field="*{lines[__${iter.index}__].description}" required="required"/>
+                    </div>
+                    <button type="button" class="btn btn-remove" onclick="removeLine(this)" aria-label="Supprimer la ligne">×</button>
+                </div>
+                <div class="grid">
+                    <div>
+                        <label>Longueur (cm)</label>
+                        <input type="number" min="0" step="0.01" class="longueur"
+                               th:field="*{lines[__${iter.index}__].longueur}"/>
+                    </div>
+                    <div>
+                        <label>Largeur (cm)</label>
+                        <input type="number" min="0" step="0.01" class="largeur"
+                               th:field="*{lines[__${iter.index}__].largeur}"/>
+                    </div>
+                    <div>
+                        <label>Nombre de points</label>
+                        <input type="number" min="0" step="1" class="points"
+                               th:field="*{lines[__${iter.index}__].nombreDePoints}" required="required"/>
+                    </div>
+                    <div>
+                        <label>Quantité</label>
+                        <input type="number" min="1" step="1" class="quantite"
+                               th:field="*{lines[__${iter.index}__].quantite}" required="required"/>
+                    </div>
+                    <div>
+                        <label>Prix conception</label>
+                        <input type="number" min="0" step="0.01" class="conception"
+                               th:field="*{lines[__${iter.index}__].prixConception}" required="required"/>
+                    </div>
+                    <div>
+                        <label>Prix broderie</label>
+                        <input type="text" class="broderie" readonly="readonly" tabindex="-1" value="0,00"/>
+                    </div>
+                    <div>
+                        <label>Total ligne</label>
+                        <input type="text" class="total-ligne" readonly="readonly" tabindex="-1" value="0,00"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-add" onclick="addLine()">Ajouter une ligne</button>
+
+        <dl class="totals">
+            <div>
+                <dt>Total broderie</dt>
+                <dd id="total-broderie">0,00 MGA</dd>
+            </div>
+            <div>
+                <dt>Total avec conception</dt>
+                <dd id="total-conception">0,00 MGA</dd>
+            </div>
+        </dl>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Générer le PDF</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const RATE = 700;
+    const DIVISOR = 1000;
+
+    function formatAmount(value) {
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    }
+
+    function linePrice(row) {
+        const points = Number(row.querySelector('.points').value) || 0;
+        const quantite = Number(row.querySelector('.quantite').value) || 0;
+        const conception = Number(row.querySelector('.conception').value) || 0;
+        const broderie = RATE * points / DIVISOR * quantite;
+        row.querySelector('.broderie').value = formatAmount(broderie);
+        row.querySelector('.total-ligne').value = formatAmount(conception + broderie);
+        return {broderie, conception};
+    }
+
+    function recalculate() {
+        let totalBroderie = 0;
+        let totalConception = 0;
+        document.querySelectorAll('.invoice-line').forEach((row) => {
+            const amounts = linePrice(row);
+            totalBroderie += amounts.broderie;
+            totalConception += amounts.conception;
+        });
+        document.getElementById('total-broderie').textContent = formatAmount(totalBroderie) + ' MGA';
+        document.getElementById('total-conception').textContent =
+            formatAmount(totalBroderie + totalConception) + ' MGA';
+    }
+
+    function reindex() {
+        document.querySelectorAll('#lines-body .invoice-line').forEach((row, index) => {
+            row.querySelectorAll('input[name]').forEach((input) => {
+                input.name = input.name.replace(/lines\[\d+]/, 'lines[' + index + ']');
+                input.id = input.id.replace(/lines\d+/, 'lines' + index);
+            });
+        });
+    }
+
+    function addLine() {
+        const body = document.getElementById('lines-body');
+        const template = body.querySelector('.invoice-line');
+        const row = template.cloneNode(true);
+        row.querySelectorAll('input').forEach((input) => {
+            if (!input.readOnly) {
+                input.value = '';
+            } else {
+                input.value = formatAmount(0);
+            }
+        });
+        body.appendChild(row);
+        reindex();
+        recalculate();
+    }
+
+    function removeLine(button) {
+        const body = document.getElementById('lines-body');
+        if (body.querySelectorAll('.invoice-line').length === 1) {
+            return;
+        }
+        button.closest('.invoice-line').remove();
+        reindex();
+        recalculate();
+    }
+
+    function resetForm() {
+        const form = document.getElementById('invoice-form');
+        form.reset();
+        const body = document.getElementById('lines-body');
+        const rows = body.querySelectorAll('.invoice-line');
+        rows.forEach((row, index) => {
+            if (index > 0) {
+                row.remove();
+            }
+        });
+        body.querySelectorAll('input').forEach((input) => {
+            input.value = input.readOnly ? formatAmount(0) : '';
+        });
+        reindex();
+        recalculate();
+    }
+
+    document.getElementById('invoice-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        if (!form.reportValidity()) {
+            return;
+        }
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        });
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok || !contentType.includes('application/pdf')) {
+            return;
+        }
+        try {
+            const blob = await response.blob();
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = pdfFilenameFromHeader(response.headers.get('content-disposition')) || 'Brodaka.pdf';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(downloadUrl);
+        } finally {
+            resetForm();
+        }
+    });
+
+    function pdfFilenameFromHeader(header) {
+        if (!header) {
+            return null;
+        }
+        const utf8 = header.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8) {
+            return decodeURIComponent(utf8[1].trim());
+        }
+        const ascii = header.match(/filename="?([^";]+)"?/i);
+        return ascii ? ascii[1].trim() : null;
+    }
+
+    document.addEventListener('input', (event) => {
+        if (event.target.closest('.invoice-line')) {
+            recalculate();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', recalculate);
+</script>
+</body>
+</html>

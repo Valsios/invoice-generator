@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Facture Brodaka Studio</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 14mm;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Times New Roman", serif;
+            color: #2c241c;
+            font-size: 11px;
+        }
+        .header {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+        }
+        .brand {
+            padding-left: 16px;
+            vertical-align: middle;
+        }
+        .brand h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 3px;
+        }
+        .brand p {
+            margin: 4px 0 0;
+            color: #6b5e52;
+        }
+        .meta {
+            width: 100%;
+            margin: 12px 0 16px;
+            border-collapse: collapse;
+        }
+        .meta td {
+            padding: 4px 0;
+            font-size: 12px;
+        }
+        .label {
+            color: #6b5e52;
+            width: 140px;
+        }
+        table.lines {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        table.lines th {
+            background: #3d332b;
+            color: #f7f1e8;
+            font-size: 9px;
+            text-align: left;
+            padding: 7px 6px;
+        }
+        table.lines td {
+            border-bottom: 1px solid #ddd2c4;
+            padding: 7px 6px;
+            vertical-align: top;
+        }
+        .num {
+            text-align: right;
+            white-space: nowrap;
+        }
+        .totals {
+            width: 100%;
+            margin-top: 16px;
+            border-collapse: collapse;
+        }
+        .totals td {
+            padding: 6px 0;
+        }
+        .totals .amount {
+            text-align: right;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .note {
+            margin-top: 36px;
+            border-top: 1px solid #ddd2c4;
+            padding-top: 12px;
+        }
+        .note h2 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        .note p {
+            margin: 0 0 8px;
+            line-height: 1.45;
+        }
+    </style>
+</head>
+<body>
+<table class="header">
+    <tr>
+        <td style="width: 130px;">
+            <img class="logo" th:src="${logoDataUri}" src="images/logo-brodaka.jpg" alt="Brodaka Studio"/>
+        </td>
+        <td class="brand">
+            <h1>BRODAKA STUDIO</h1>
+            <p>Facture broderie</p>
+        </td>
+    </tr>
+</table>
+
+<table class="meta">
+    <tr>
+        <td class="label">Date</td>
+        <td th:text="${#temporals.format(invoice.invoiceDate, 'dd/MM/yyyy')}">01/01/2026</td>
+    </tr>
+    <tr>
+        <td class="label">Nom client</td>
+        <td th:text="${invoice.clientName}">Client</td>
+    </tr>
+</table>
+
+<table class="lines">
+    <thead>
+    <tr>
+        <th>Description</th>
+        <th>Longueur (cm)</th>
+        <th>Largeur (cm)</th>
+        <th>Nombre de points</th>
+        <th>Quantité</th>
+        <th>Prix conception</th>
+        <th>Prix broderie</th>
+        <th>Total ligne</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="line : ${invoice.lines}">
+        <td th:text="${line.description}">Motif</td>
+        <td class="num" th:text="${line.longueur != null ? #numbers.formatDecimal(line.longueur, 1, 'WHITESPACE', 2, 'COMMA') : ''}"></td>
+        <td class="num" th:text="${line.largeur != null ? #numbers.formatDecimal(line.largeur, 1, 'WHITESPACE', 2, 'COMMA') : ''}"></td>
+        <td class="num" th:text="${line.nombreDePoints}">1000</td>
+        <td class="num" th:text="${line.quantite}">1</td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.prixConception, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.prixBroderie, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.totalLigne, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
+    </tr>
+    </tbody>
+</table>
+
+<table class="totals">
+    <tr>
+        <td>Total broderie</td>
+        <td class="amount" th:text="${#numbers.formatDecimal(invoice.totalBroderie, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
+    </tr>
+    <tr>
+        <td>Total avec conception</td>
+        <td class="amount" th:text="${#numbers.formatDecimal(invoice.totalAvecConception, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
+    </tr>
+</table>
+
+<div class="note">
+    <h2>REMARQUE / FANAMARIHANA</h2>
+    <p>
+        Le prix de la conception est payable en une seule fois.<br/>
+        Le prix total de la broderie dépend de la quantité commandée.
+    </p>
+    <p>
+        Ny saram-pamolavolana “CONCEPTION” dia aloa indray mandeha monja.<br/>
+        Ny totalin’ny saran’ny “BRODERIE” kosa dia miankina amin’ny isan’ny zavatra hanaovana azy.
+    </p>
+</div>
+</body>
+</html>
