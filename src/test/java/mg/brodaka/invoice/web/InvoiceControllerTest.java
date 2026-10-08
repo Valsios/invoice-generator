@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -56,5 +58,19 @@ class InvoiceControllerTest {
                         .param("lines[0].prixConception", "150"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF));
+    }
+
+    @Test
+    void generatesZipFromCsv() throws Exception {
+        byte[] csv = getClass().getResourceAsStream("/commande-sample.csv").readAllBytes();
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "commande.csv",
+                "text/csv",
+                csv);
+        mockMvc.perform(multipart("/devis/csv").file(file))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.parseMediaType("application/zip")))
+                .andExpect(header().string("Content-Disposition", containsString("Brodaka-devis-")));
     }
 }

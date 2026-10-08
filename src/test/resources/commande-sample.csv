@@ -1,0 +1,4 @@
+ID,Facture,Assigned,Etape commande,Name,customer,Type,quantity,Remise prix vente,Recette Ar,Conception Ar,Prix de vente Ar,Prix support,Total broderie,Total avec support,Total avec conception,Total all net,Hauteur(Cm),Largeur(Cm),Point,Priority,Created time
+24,Commande/Order%20sandhie/ID_24.png,Franco Ezail,Not started,Order sandhie,Sandhie Christina (https://app.notion.com/p/Sandhie-Christina-3f0ecd1d935780f7abbbcfb189a78614?pvs=21),"Broderie, T-shirt",1,0,900,15 000,1 260,,1 260,1 260,16 260,16 260,3,4,1 800,High,5 octobre 2026 15:57
+30,Commande/b.png,Franco Ezail,Not started,Order 2,Sandhie Christina (https://app.notion.com/p/Sandhie-Christina-3f0ecd1d935780f7abbbcfb189a78614?pvs=21),Broderie,2,0,0,15 000,2 000,,4 000,4 000,19 000,19 000,2,14,3 000,High,6 octobre 2026 10:00
+31,Commande/c.png,Franco Ezail,Not started,Other,Maison Soa (https://app.notion.com/p/Maison),Broderie,1,0,0,0,700,,700,700,700,700,1,1,1 000,Low,6 octobre 2026 11:00

@@ -20,8 +20,11 @@ public class InvoiceCalculator {
         form.setInvoiceDate(LocalDate.now());
         List<InvoiceLine> lines = form.getLines();
         if (lines == null) {
-            form.setTotalBroderie(BigDecimal.ZERO.setScale(SCALE, RoundingMode.HALF_UP));
-            form.setTotalAvecConception(BigDecimal.ZERO.setScale(SCALE, RoundingMode.HALF_UP));
+            BigDecimal zero = BigDecimal.ZERO.setScale(SCALE, RoundingMode.HALF_UP);
+            form.setTotalBroderie(zero);
+            form.setTotalAvecSupport(zero);
+            form.setTotalAvecConception(zero);
+            form.setPrixTotal(zero);
             return;
         }
 
@@ -40,8 +43,28 @@ public class InvoiceCalculator {
             totalConception = totalConception.add(prixConception);
         }
 
+        BigDecimal totalAvecConception = totalBroderie.add(totalConception).setScale(SCALE, RoundingMode.HALF_UP);
         form.setTotalBroderie(totalBroderie.setScale(SCALE, RoundingMode.HALF_UP));
-        form.setTotalAvecConception(totalBroderie.add(totalConception).setScale(SCALE, RoundingMode.HALF_UP));
+        form.setTotalAvecSupport(totalAvecConception);
+        form.setTotalAvecConception(totalAvecConception);
+        form.setPrixTotal(totalAvecConception);
+        if (form.getSupport() == null || form.getSupport().isBlank()) {
+            form.setSupport("Aucun");
+        }
+        InvoiceLine first = lines.isEmpty() ? null : lines.getFirst();
+        if (first != null) {
+            if (form.getHeaderLargeur() == null) {
+                form.setHeaderLargeur(first.getLargeur());
+            }
+            if (form.getHeaderHauteur() == null) {
+                form.setHeaderHauteur(first.getLongueur());
+            }
+            for (InvoiceLine line : lines) {
+                if (line.getDemande() == null || line.getDemande().isBlank()) {
+                    line.setDemande(line.getDescription());
+                }
+            }
+        }
     }
 
     public BigDecimal embroideryPrice(Integer nombreDePoints, Integer quantite) {

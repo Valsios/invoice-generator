@@ -34,6 +34,9 @@ class InvoiceCalculatorTest {
         assertThat(form.getLines().get(1).getPrixBroderie()).isEqualByComparingTo("2800.00");
         assertThat(form.getTotalBroderie()).isEqualByComparingTo("3500.00");
         assertThat(form.getTotalAvecConception()).isEqualByComparingTo("3650.50");
+        assertThat(form.getTotalAvecSupport()).isEqualByComparingTo("3650.50");
+        assertThat(form.getPrixTotal()).isEqualByComparingTo("3650.50");
+        assertThat(form.getSupport()).isEqualTo("Aucun");
         assertThat(form.getInvoiceDate()).isNotNull();
     }
 

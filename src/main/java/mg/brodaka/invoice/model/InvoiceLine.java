@@ -12,6 +12,8 @@ public class InvoiceLine {
     @NotBlank
     private String description;
 
+    private String demande;
+
     @DecimalMin("0")
     private BigDecimal longueur;
 
@@ -39,6 +41,14 @@ public class InvoiceLine {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDemande() {
+        return demande;
+    }
+
+    public void setDemande(String demande) {
+        this.demande = demande;
     }
 
     public BigDecimal getLongueur() {

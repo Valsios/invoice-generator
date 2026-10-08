@@ -57,6 +57,18 @@ body {
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 22px;
+    margin-bottom: 20px;
+}
+
+.csv-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.hint {
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 0.9rem;
 }
 
 label {

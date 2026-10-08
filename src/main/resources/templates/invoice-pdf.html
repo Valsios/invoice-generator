@@ -2,177 +2,224 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8"/>
-    <title>Facture Brodaka Studio</title>
+    <title>Devis Brodaka Studio</title>
     <style>
         @page {
             size: A4;
-            margin: 14mm;
+            margin: 12mm 14mm;
         }
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
-            font-family: "Times New Roman", serif;
-            color: #2c241c;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #111;
             font-size: 11px;
         }
-        .header {
+        table { border-collapse: collapse; }
+        .top {
             width: 100%;
-            border-collapse: collapse;
             margin-bottom: 18px;
         }
         .logo {
-            width: 120px;
-            height: 120px;
+            height: 48px;
         }
-        .brand {
-            padding-left: 16px;
-            vertical-align: middle;
+        .title {
+            text-align: right;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
         }
-        .brand h1 {
-            margin: 0;
-            font-size: 22px;
-            letter-spacing: 3px;
-        }
-        .brand p {
-            margin: 4px 0 0;
-            color: #6b5e52;
-        }
-        .meta {
+        .block {
             width: 100%;
-            margin: 12px 0 16px;
-            border-collapse: collapse;
+            margin-bottom: 14px;
         }
-        .meta td {
-            padding: 4px 0;
-            font-size: 12px;
+        .block td {
+            vertical-align: top;
+            padding: 2px 0;
         }
-        .label {
-            color: #6b5e52;
-            width: 140px;
+        .muted {
+            color: #222;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .right { text-align: right; }
+        .dash {
+            border: 0;
+            border-top: 1px dashed #bbb;
+            margin: 10px 0 14px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 6px;
         }
         table.lines {
             width: 100%;
-            border-collapse: collapse;
             margin-top: 8px;
         }
         table.lines th {
-            background: #3d332b;
-            color: #f7f1e8;
-            font-size: 9px;
             text-align: left;
-            padding: 7px 6px;
+            font-size: 10px;
+            padding: 0 6px 8px 0;
+            font-weight: bold;
+        }
+        table.lines th.num, table.lines td.num {
+            text-align: right;
         }
         table.lines td {
-            border-bottom: 1px solid #ddd2c4;
-            padding: 7px 6px;
+            padding: 4px 6px 8px 0;
             vertical-align: top;
         }
-        .num {
-            text-align: right;
-            white-space: nowrap;
-        }
-        .totals {
-            width: 100%;
-            margin-top: 16px;
-            border-collapse: collapse;
-        }
-        .totals td {
-            padding: 6px 0;
-        }
-        .totals .amount {
-            text-align: right;
-            font-weight: bold;
-            font-size: 13px;
-        }
         .note {
-            margin-top: 36px;
-            border-top: 1px solid #ddd2c4;
-            padding-top: 12px;
+            color: #c1121f;
+            margin: 18px 0 8px;
+            font-size: 11px;
         }
         .note h2 {
-            margin: 0 0 8px;
-            font-size: 12px;
-            letter-spacing: 1px;
+            margin: 0 0 6px;
+            font-size: 11px;
         }
-        .note p {
-            margin: 0 0 8px;
-            line-height: 1.45;
+        .note ul {
+            margin: 0 0 12px 16px;
+            padding: 0;
+        }
+        .note li {
+            margin-bottom: 3px;
+        }
+        table.totals {
+            width: 100%;
+            margin-top: 8px;
+        }
+        table.totals td {
+            padding: 10px 0;
+            border-top: 1px dashed #bbb;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .amount {
+            text-align: right;
+            white-space: nowrap;
         }
     </style>
 </head>
 <body>
-<table class="header">
+<table class="top">
     <tr>
-        <td style="width: 130px;">
+        <td style="width: 55%;">
             <img class="logo" th:src="${logoDataUri}" src="images/logo-brodaka.jpg" alt="Brodaka Studio"/>
         </td>
-        <td class="brand">
-            <h1>BRODAKA STUDIO</h1>
-            <p>Facture broderie</p>
+        <td class="title">Devis</td>
+    </tr>
+</table>
+
+<table class="block">
+    <tr>
+        <td style="width: 55%;">
+            <div class="muted">Doit à</div>
+            <table style="width: 100%; margin-top: 8px;">
+                <tr>
+                    <td style="width: 110px;">Nom / Société :</td>
+                    <td th:text="${invoice.clientName}">Client</td>
+                </tr>
+                <tr>
+                    <td>Adresse :</td>
+                    <td th:text="${invoice.adresse}"> </td>
+                </tr>
+                <tr>
+                    <td>Contact :</td>
+                    <td th:text="${invoice.contact}"> </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table style="width: 100%;">
+                <tr>
+                    <td>Demande n° :</td>
+                    <td class="right" th:text="${invoice.demandeNumero}">001</td>
+                </tr>
+                <tr>
+                    <td>Date :</td>
+                    <td class="right" th:text="${#temporals.format(invoice.invoiceDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                </tr>
+                <tr>
+                    <td>Référence client / ID :</td>
+                    <td class="right" style="font-weight: bold; font-size: 16px;" th:text="${invoice.clientRef}"> </td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>
 
-<table class="meta">
+<hr class="dash"/>
+
+<table class="block">
     <tr>
-        <td class="label">Date</td>
-        <td th:text="${#temporals.format(invoice.invoiceDate, 'dd/MM/yyyy')}">01/01/2026</td>
-    </tr>
-    <tr>
-        <td class="label">Nom client</td>
-        <td th:text="${invoice.clientName}">Client</td>
+        <td>
+            <div class="section-title">Support</div>
+            <div th:text="${invoice.support}">Aucun</div>
+        </td>
     </tr>
 </table>
+
+<hr class="dash"/>
 
 <table class="lines">
     <thead>
     <tr>
-        <th>Description</th>
-        <th>Longueur (cm)</th>
-        <th>Largeur (cm)</th>
-        <th>Nombre de points</th>
-        <th>Quantité</th>
-        <th>Prix conception</th>
-        <th>Prix broderie</th>
-        <th>Total ligne</th>
+        <th>Demande</th>
+        <th class="num">Largeur</th>
+        <th class="num">Hauteur</th>
+        <th class="num">Qté</th>
+        <th class="num">Nb de points</th>
+        <th class="num">Prix Conception</th>
+        <th class="num">Prix broderie</th>
+        <th class="num">Montant Total</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="line : ${invoice.lines}">
-        <td th:text="${line.description}">Motif</td>
-        <td class="num" th:text="${line.longueur != null ? #numbers.formatDecimal(line.longueur, 1, 'WHITESPACE', 2, 'COMMA') : ''}"></td>
-        <td class="num" th:text="${line.largeur != null ? #numbers.formatDecimal(line.largeur, 1, 'WHITESPACE', 2, 'COMMA') : ''}"></td>
-        <td class="num" th:text="${line.nombreDePoints}">1000</td>
+        <td th:text="${line.demande != null ? line.demande : line.description}">Broderie</td>
+        <td class="num" th:text="${line.largeur != null ? #numbers.formatDecimal(line.largeur, 1, 'WHITESPACE', 0, 'COMMA') + ' cm' : ''}"> </td>
+        <td class="num" th:text="${line.longueur != null ? #numbers.formatDecimal(line.longueur, 1, 'WHITESPACE', 0, 'COMMA') + ' cm' : ''}"> </td>
         <td class="num" th:text="${line.quantite}">1</td>
-        <td class="num" th:text="${#numbers.formatDecimal(line.prixConception, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
-        <td class="num" th:text="${#numbers.formatDecimal(line.prixBroderie, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
-        <td class="num" th:text="${#numbers.formatDecimal(line.totalLigne, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
+        <td class="num" th:text="${line.nombreDePoints != null ? #numbers.formatInteger(line.nombreDePoints, 1, 'WHITESPACE') : ''}">0</td>
+        <td class="num" th:text="${#numbers.formatInteger(line.prixConception, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
+        <td class="num" th:text="${#numbers.formatInteger(line.prixBroderie, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
+        <td class="num" th:text="${#numbers.formatInteger(line.totalLigne, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
     </tr>
     </tbody>
 </table>
 
-<table class="totals">
-    <tr>
-        <td>Total broderie</td>
-        <td class="amount" th:text="${#numbers.formatDecimal(invoice.totalBroderie, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
-    </tr>
-    <tr>
-        <td>Total avec conception</td>
-        <td class="amount" th:text="${#numbers.formatDecimal(invoice.totalAvecConception, 1, 'WHITESPACE', 2, 'COMMA')} + ' MGA'">0,00 MGA</td>
-    </tr>
-</table>
+<hr class="dash"/>
 
 <div class="note">
-    <h2>REMARQUE / FANAMARIHANA</h2>
-    <p>
-        Le prix de la conception est payable en une seule fois.<br/>
-        Le prix total de la broderie dépend de la quantité commandée.
-    </p>
-    <p>
-        Ny saram-pamolavolana “CONCEPTION” dia aloa indray mandeha monja.<br/>
-        Ny totalin’ny saran’ny “BRODERIE” kosa dia miankina amin’ny isan’ny zavatra hanaovana azy.
-    </p>
+    <h2>REMARQUE :</h2>
+    <ul>
+        <li>LE PRIX DE LA CONCEPTION EST PAYABLE EN UNE SEULE FOIS.</li>
+        <li>LE PRIX TOTAL DE LA BRODERIE DÉPEND DE LA QUANTITÉ COMMANDÉE.</li>
+    </ul>
+    <h2>FANAMARIHANA :</h2>
+    <ul>
+        <li>NY SARAM-PAMOLAVOLANA “CONCEPTION” DIA ALOA INDRAY MANDEHA MONJA.</li>
+        <li>NY TOTALIN’NY SARAN’NY “BRODERIE” KOSA DIA MIANKINA AMIN’NY ISAN’NY ZAVATRA HANAOVANA AZY.</li>
+    </ul>
 </div>
+
+<table class="totals">
+    <tr>
+        <td>TOTAL BRODERIE :</td>
+        <td class="amount" th:text="${#numbers.formatInteger(invoice.totalBroderie, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
+    </tr>
+    <tr>
+        <td>TOTAL AVEC SUPPORT :</td>
+        <td class="amount" th:text="${#numbers.formatInteger(invoice.totalAvecSupport, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
+    </tr>
+    <tr>
+        <td>TOTAL AVEC CONCEPTION :</td>
+        <td class="amount" th:text="${#numbers.formatInteger(invoice.totalAvecConception, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
+    </tr>
+    <tr>
+        <td>PRIX TOTAL :</td>
+        <td class="amount" th:text="${#numbers.formatInteger(invoice.prixTotal, 1, 'WHITESPACE')} + ' Ar'">0 Ar</td>
+    </tr>
+</table>
 </body>
 </html>

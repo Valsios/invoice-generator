@@ -16,6 +16,17 @@
         </div>
     </header>
 
+    <form class="card csv-card" th:action="@{/devis/csv}" method="post" enctype="multipart/form-data">
+        <h2>Importer un CSV</h2>
+        <p class="hint">Un devis par client : les lignes du même nom sont regroupées. Fichier Notion Commande (.csv).</p>
+        <p class="error global-error" th:if="${csvError}" th:text="${csvError}">Erreur CSV</p>
+        <label for="csvFile">Fichier CSV</label>
+        <input id="csvFile" type="file" name="file" accept=".csv,text/csv" required="required"/>
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Générer les devis (ZIP)</button>
+        </div>
+    </form>
+
     <form id="invoice-form" class="card" th:action="@{/facture/pdf}" th:object="${invoiceForm}" method="post">
         <p class="error global-error" th:if="${#fields.hasErrors('*')}">
             Vérifiez le nom du client et les lignes : description, nombre de points, quantité et prix conception sont obligatoires.
@@ -82,8 +93,16 @@
                 <dd id="total-broderie">0,00 MGA</dd>
             </div>
             <div>
+                <dt>Total avec support</dt>
+                <dd id="total-support">0,00 MGA</dd>
+            </div>
+            <div>
                 <dt>Total avec conception</dt>
                 <dd id="total-conception">0,00 MGA</dd>
+            </div>
+            <div>
+                <dt>Prix total</dt>
+                <dd id="prix-total">0,00 MGA</dd>
             </div>
         </dl>
 
@@ -122,9 +141,11 @@
             totalBroderie += amounts.broderie;
             totalConception += amounts.conception;
         });
+        const totalAvecConception = totalBroderie + totalConception;
         document.getElementById('total-broderie').textContent = formatAmount(totalBroderie) + ' MGA';
-        document.getElementById('total-conception').textContent =
-            formatAmount(totalBroderie + totalConception) + ' MGA';
+        document.getElementById('total-support').textContent = formatAmount(totalAvecConception) + ' MGA';
+        document.getElementById('total-conception').textContent = formatAmount(totalAvecConception) + ' MGA';
+        document.getElementById('prix-total').textContent = formatAmount(totalAvecConception) + ' MGA';
     }
 
     function reindex() {
